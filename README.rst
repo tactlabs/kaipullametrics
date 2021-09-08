@@ -3,25 +3,12 @@ Pretty Metrics
 ============
 
 
-.. image:: https://img.shields.io/pypi/v/prettymetrics.svg
-        :target: https://pypi.python.org/pypi/prettymetrics
 
-.. image:: https://img.shields.io/travis/tactlabs/prettymetrics.svg
-        :target: https://travis-ci.org/tactlabs/prettymetrics
 
-.. image:: https://readthedocs.org/projects/prettymetrics/badge/?version=latest
-        :target: https://prettymetrics.readthedocs.io/en/latest/?badge=latest
-        :alt: Documentation Status
+Pretty Metrics bring the ROC, F1 scores and other details for all ML libraries
 
-.. image:: https://pepy.tech/badge/prettymetrics
-     :target: https://pepy.tech/project/prettymetrics
-     :alt: Downloads
-
-.. image:: https://www.codefactor.io/repository/github/tactlabs/prettymetrics/badge
-   :target: https://www.codefactor.io/repository/github/tactlabs/prettymetrics
-   :alt: CodeFactor
-
-Pretty Metrics helps build a lot of basic models without much code and helps understand which models works better without any parameter tuning.
+Credits:
+The base code is derived from LazyPredict (https://github.com/shankarpandala/lazypredict). As we see a lot of improvement in LazyPredict and the existing library is a bit outdated, we came up with this library. It can be LazyPredict++ as you will see this lib is updated and having more metrics.
 
 
 * Free software: MIT license
