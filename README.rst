@@ -22,6 +22,10 @@ To install Pretty Metrics::
 
     pip install prettymetrics
 
+    or
+
+    pip install git+https://github.com/tactlabs/prettymetrics.git
+
 =====
 Usage
 =====
