@@ -23,7 +23,7 @@ test_requirements = [
 
 setup(
     author="Raja CSP Raman",
-    author_email="raja@tactii.com",
+    author_email="info@tactii.com",
     python_requires=">=3.6",
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
@@ -32,7 +32,7 @@ setup(
         "Natural Language :: English",
         "Programming Language :: Python :: 3.6",
     ],
-    description="Pretty Metrics help build a lot of basic models without much code and helps understand which models works better without any parameter tuning",
+    description="Pretty Metrics bring the ROC, F1 scores and other details for all ML libraries",
     entry_points={"console_scripts": ["prettymetrics=prettymetrics.cli:main",],},
     install_requires=requirements,
     license="MIT license",

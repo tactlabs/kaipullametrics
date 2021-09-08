@@ -1,5 +1,5 @@
 
-from prettymetrics.Supervised import LazyClassifier
+from prettymetrics.supervised import LazyClassifier
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
 from sklearn.linear_model import SGDClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis

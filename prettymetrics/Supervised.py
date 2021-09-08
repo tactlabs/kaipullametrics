@@ -1,7 +1,7 @@
 """
-Supervised Models
+supervised Models
 """
-# Author: Raja CSP Raman <raja@tactii.com>
+# Author: Raja CSP Raman <info@tactii.com>
 
 import numpy as np
 import pandas as pd
@@ -175,7 +175,7 @@ class LazyClassifier:
 
     Examples
     --------
-    >>> from prettymetrics.Supervised import LazyClassifier
+    >>> from prettymetrics.supervised import LazyClassifier
     >>> from sklearn.datasets import load_breast_cancer
     >>> from sklearn.model_selection import train_test_split
     >>> data = load_breast_cancer()
@@ -457,7 +457,7 @@ class LazyRegressor:
 
     Examples
     --------
-    >>> from prettymetrics.Supervised import LazyRegressor
+    >>> from prettymetrics.supervised import LazyRegressor
     >>> from sklearn import datasets
     >>> from sklearn.utils import shuffle
     >>> import numpy as np

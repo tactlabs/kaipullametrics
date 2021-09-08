@@ -12,7 +12,7 @@ Classification
 
 Example ::
 
-    from prettymetrics.Supervised import LazyClassifier
+    from prettymetrics.supervised import LazyClassifier
     from sklearn.datasets import load_breast_cancer
     from sklearn.model_selection import train_test_split
     data = load_breast_cancer()
@@ -63,7 +63,7 @@ Regression
 
 Example ::
 
-    from prettymetrics.Supervised import LazyRegressor
+    from prettymetrics.supervised import LazyRegressor
     from sklearn import datasets
     from sklearn.utils import shuffle
     import numpy as np
