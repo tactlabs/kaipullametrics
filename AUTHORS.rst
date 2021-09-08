@@ -5,7 +5,7 @@ Credits
 Development Lead
 ----------------
 
-* Raja CSP Raman <info@tactii.com>
+* Raja CSP Raman <raja@tactii.com>
 
 Contributors
 ------------
