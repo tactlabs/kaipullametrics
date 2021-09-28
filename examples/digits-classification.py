@@ -1,8 +1,10 @@
+import prettymetrics
+
 from prettymetrics.supervised import LazyClassifier
-from sklearn.datasets import load_iris
+from sklearn.datasets import load_digits
 from sklearn.model_selection import train_test_split
 
-data = load_iris()
+data = load_digits()
 X = data.data
 y= data.target
 
