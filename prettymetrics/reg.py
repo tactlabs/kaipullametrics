@@ -17,6 +17,7 @@ from sklearn.multioutput import MultiOutputRegressor
 from sklearn.naive_bayes import (ComplementNB, MultinomialNB)
 from sklearn.isotonic import IsotonicRegression
 from sklearn.cross_decomposition import CCA
+from sklearn.ensemble import (VotingRegressor, StackingRegressor)
 from sklearn.metrics import (
     r2_score,
     mean_squared_error,
@@ -33,7 +34,7 @@ removed_regressors = [
     ("ARDRegression", sklearn.linear_model.ARDRegression),
     ("CCA", CCA),
     ("IsotonicRegression", sklearn.isotonic.IsotonicRegression),
-    ("StackingRegressor",sklearn.ensemble.StackingRegressor),
+    ("StackingRegressor", StackingRegressor),
     ("MultiOutputRegressor", MultiOutputRegressor),
     ("MultiTaskElasticNet", sklearn.linear_model.MultiTaskElasticNet),
     ("MultiTaskElasticNetCV", sklearn.linear_model.MultiTaskElasticNetCV),
@@ -43,7 +44,7 @@ removed_regressors = [
     ("PLSRegression", sklearn.cross_decomposition.PLSRegression),
     ("RadiusNeighborsRegressor", sklearn.neighbors.RadiusNeighborsRegressor),
     ("RegressorChain", sklearn.multioutput.RegressorChain),
-    ("VotingRegressor", sklearn.ensemble.VotingRegressor),
+    ("VotingRegressor", VotingRegressor),
     # ("_SigmoidCalibration", sklearn.calibration._SigmoidCalibration),
 ]
 
@@ -104,7 +105,7 @@ def adjusted_rsquared(r2, n, p):
     return 1 - (1-r2) * ((n-1) / (n-p-1))
 
 
-class LazyRegressor:
+class Regressor:
     """
     This module helps in fitting regression models that are available in Scikit-learn
     Parameters
@@ -123,7 +124,7 @@ class LazyRegressor:
 
     Examples
     --------
-    >>> from prettymetrics.supervised import LazyRegressor
+    >>> from prettymetrics.reg import Regressor
     >>> from sklearn import datasets
     >>> from sklearn.utils import shuffle
     >>> import numpy as np
@@ -136,7 +137,7 @@ class LazyRegressor:
     >>> X_train, y_train = X[:offset], y[:offset]
     >>> X_test, y_test = X[offset:], y[offset:]
 
-    >>> reg = LazyRegressor(verbose=0, ignore_warnings=False, custom_metric=None)
+    >>> reg = Regressor(verbose=0, ignore_warnings=False, custom_metric=None)
     >>> models, predictions = reg.fit(X_train, X_test, y_train, y_test)
     >>> model_dictionary = reg.provide_models(X_train, X_test, y_train, y_test)
     >>> models
@@ -368,6 +369,3 @@ class LazyRegressor:
             self.fit(X_train,X_test,y_train,y_test)
 
         return self.models
-
-
-Regression = LazyRegressor

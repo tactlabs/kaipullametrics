@@ -1,5 +1,5 @@
 
-from prettymetrics.supervised import LazyClassifier
+from prettymetrics.clf import Classifier
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
 from sklearn.linear_model import SGDClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
@@ -18,7 +18,7 @@ def main():
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.2, random_state=42)
 
     # Lazy Classifier configuration with SPECIFIC classifier algorithms
-    clf = LazyClassifier(verbose=0, ignore_warnings=True, custom_metric=None, classifiers=[RandomForestClassifier(), LinearDiscriminantAnalysis(), ExtraTreesClassifier(),
+    clf = Classifier(verbose=0, ignore_warnings=True, custom_metric=None, classifiers=[RandomForestClassifier(), LinearDiscriminantAnalysis(), ExtraTreesClassifier(),
                                                                                            QuadraticDiscriminantAnalysis(), SGDClassifier()])
     # Training and testing evaluation
     models, predictions = clf.fit(X_train, X_test, y_train, y_test)
