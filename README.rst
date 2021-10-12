@@ -28,8 +28,8 @@ To install Pretty Metrics::
 
 Pip installing the library from local repository :
 
-    conda activate (ca py38)
-    
+    conda activate <env_name>
+
     python setup.py install develop
     
 =====
