@@ -167,8 +167,4 @@ Example ::
     | KernelRidge                   |             -11.50 |     -8.25 | 22.74 |       0.01 |
 
 
-.. warning::
-    Regression and Classification are replaced with Regressor and Classifier.
-    Regression and Classification classes will be removed in next release
-
 
