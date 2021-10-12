@@ -1,12 +1,10 @@
 
 from prettymetrics.supervised import LazyClassifier
 from sklearn.model_selection import train_test_split
-
+from sklearn.preprocessing import LabelEncoder
 import pandas as pd
 
 data = pd.read_csv("examples/dataset/Star_data.csv")
-
-from sklearn.preprocessing import LabelEncoder
 
 SpType_le = LabelEncoder()
 

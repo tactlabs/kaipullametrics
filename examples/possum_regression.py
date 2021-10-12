@@ -4,11 +4,9 @@ from sklearn.model_selection import train_test_split
 from  sklearn.preprocessing import LabelEncoder
 import pandas as pd
 
-data = pd.read_csv("examples/dataset/possum.csv")
-
-data = data.dropna()
-
-le = LabelEncoder()
+data    = pd.read_csv("examples/dataset/possum.csv")
+data    = data.dropna()
+le      = LabelEncoder()
 
 data["Pop"] = le.fit_transform(data.Pop)
 data["sex"] = le.fit_transform(data.sex)
@@ -18,7 +16,7 @@ y = data["age"]
 
 X_train, X_test, y_train, y_test = train_test_split(X, y,test_size = .2,random_state = 123)
 
-reg = Regressor(verbose = 0,ignore_warnings = True, custom_metric = None)
+reg                 = Regressor(verbose = 0,ignore_warnings = True, custom_metric = None)
 models, predictions = reg.fit(X_train, X_test, y_train, y_test)
 
 print(models)
