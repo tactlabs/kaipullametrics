@@ -143,7 +143,7 @@ class Classifier:
 
     Examples
     --------
-    >>> from prettymetrics.supervised import Classifier
+    >>> from prettymetrics.clf import Classifier
     >>> from sklearn.datasets import load_breast_cancer
     >>> from sklearn.model_selection import train_test_split
     >>> data = load_breast_cancer()

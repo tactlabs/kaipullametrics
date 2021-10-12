@@ -124,7 +124,7 @@ class Regressor:
 
     Examples
     --------
-    >>> from prettymetrics.supervised import Regressor
+    >>> from prettymetrics.reg import Regressor
     >>> from sklearn import datasets
     >>> from sklearn.utils import shuffle
     >>> import numpy as np

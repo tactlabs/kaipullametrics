@@ -45,7 +45,7 @@ Classification
 
 Example ::
 
-    from prettymetrics.supervised import LazyClassifier
+    from prettymetrics.clf import Classifier
     from sklearn.datasets import load_breast_cancer
     from sklearn.model_selection import train_test_split
 
@@ -55,7 +55,7 @@ Example ::
 
     X_train, X_test, y_train, y_test = train_test_split(X, y,test_size=.5,random_state =123)
 
-    clf = LazyClassifier(verbose=0,ignore_warnings=True, custom_metric=None)
+    clf = Classifier(verbose=0,ignore_warnings=True, custom_metric=None)
     models,predictions = clf.fit(X_train, X_test, y_train, y_test)
 
     print(models)
@@ -100,7 +100,7 @@ Regression
 
 Example ::
 
-    from prettymetrics.supervised import LazyRegressor
+    from prettymetrics.reg import Regressor
     from sklearn import datasets
     from sklearn.utils import shuffle
     import numpy as np
@@ -114,7 +114,7 @@ Example ::
     X_train, y_train = X[:offset], y[:offset]
     X_test, y_test = X[offset:], y[offset:]
 
-    reg = LazyRegressor(verbose=0, ignore_warnings=False, custom_metric=None)
+    reg = Regressor(verbose=0, ignore_warnings=False, custom_metric=None)
     models, predictions = reg.fit(X_train, X_test, y_train, y_test)
 
     print(models)
@@ -167,7 +167,7 @@ Example ::
 
 
 .. warning::
-    Regression and Classification are replaced with LazyRegressor and LazyClassifier.
+    Regression and Classification are replaced with Regressor and Classifier.
     Regression and Classification classes will be removed in next release
 
 
