@@ -1,14 +1,12 @@
 
 from prettymetrics.reg import Regressor
 from sklearn.model_selection import train_test_split
-
+from  sklearn.preprocessing import LabelEncoder
 import pandas as pd
 
 data = pd.read_csv("examples/dataset/possum.csv")
 
 data = data.dropna()
-
-from  sklearn.preprocessing import LabelEncoder
 
 le = LabelEncoder()
 
