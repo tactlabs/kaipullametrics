@@ -26,7 +26,7 @@ To install Pretty Metrics::
 
     pip install git+https://github.com/tactlabs/prettymetrics.git
 
-Pip installing the library from local repository :
+Pip installing the library from local repository::
 
     conda activate <env_name>
 
