@@ -76,6 +76,7 @@ CLASSIFIERS = [est for est in all_estimators() if
 CLASSIFIERS.append(("XGBClassifier", xgboost.XGBClassifier))
 CLASSIFIERS.append(("LGBMClassifier", lightgbm.LGBMClassifier))
 # CLASSIFIERS.append(('CatBoostClassifier',catboost.CatBoostClassifier))
+CLASSIFIERS_DICT = {key : value for key, value in CLASSIFIERS}
 
 numeric_transformer = Pipeline(
     steps=[("imputer", SimpleImputer(strategy="mean")), ("scaler", StandardScaler())]
@@ -262,10 +263,7 @@ class LazyClassifier:
             self.classifiers = CLASSIFIERS
         else:
             try:
-                temp_list = []
-                for classifier in self.classifiers:
-                    full_name = (classifier.__class__.__name__, classifier)
-                    temp_list.append(full_name)
+                temp_list = [(classifier, CLASSIFIERS_DICT[classifier]) for classifier in self.classifiers]
                 self.classifiers = temp_list
             except Exception as exception:
                 print(exception)
@@ -296,7 +294,7 @@ class LazyClassifier:
                     roc_auc = roc_auc_score(y_test, y_pred)
                 except Exception as exception:
                     roc_auc = None
-                    if self.ignore_warnings is False:
+                    if not self.ignore_warnings:
                         print("ROC AUC couldn't be calculated for " + name)
                         print(exception)
                 names.append(name)
@@ -335,7 +333,7 @@ class LazyClassifier:
                 if self.predictions:
                     predictions[name] = y_pred
             except Exception as exception:
-                if self.ignore_warnings is False:
+                if not self.ignore_warnings:
                     print(name + " model failed to execute")
                     print(exception)
         if self.custom_metric is None:
