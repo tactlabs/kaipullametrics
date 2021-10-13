@@ -53,6 +53,7 @@ REGRESSORS = [est for est in all_estimators() if
 
 REGRESSORS.append(("XGBRegressor", xgboost.XGBRegressor))
 REGRESSORS.append(("LGBMRegressor", lightgbm.LGBMRegressor))
+REGRESSORS_DICT = {key : value for key, value in REGRESSORS}
 
 numeric_transformer = Pipeline(
     steps=[("imputer", SimpleImputer(strategy="mean")), ("scaler", StandardScaler())]
@@ -261,10 +262,7 @@ class Regressor:
             self.regressors = REGRESSORS
         else:
             try:
-                temp_list = []
-                for regressor in self.regressors:
-                    full_name = (regressor.__class__.__name__, regressor)
-                    temp_list.append(full_name)
+                temp_list = [(regressor, REGRESSORS_DICT[regressor]) for regressor in self.regressors]
                 self.regressors = temp_list
             except Exception as exception:
                 print(exception)
@@ -319,7 +317,7 @@ class Regressor:
                 if self.predictions:
                     predictions[name] = y_pred
             except Exception as exception:
-                if self.ignore_warnings is False:
+                if not self.ignore_warnings:
                     print(name + " model failed to execute")
                     print(exception)
 
