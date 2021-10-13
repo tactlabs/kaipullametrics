@@ -9,9 +9,9 @@ One place metrics for various ML regression and classification algorithms
 * Documentation: TBD
 
 
-============
+================================================
 Installation
-============
+================================================
 
 To install Pretty Metrics::
 
@@ -27,19 +27,20 @@ Pip installing the library from local repository::
 
     python setup.py install develop
     
-=====
+================================================
 Usage
-=====
+================================================
 
 To use Pretty Metrics in a project::
 
     import prettymetrics
 
-==============
+================================================
 Classification
-==============
+================================================
 
-Example ::
+Example 
+::
 
     from prettymetrics.clf import Classifier
     from sklearn.datasets import load_breast_cancer
@@ -90,11 +91,12 @@ Example ::
     | CheckingClassifier             |   0.361404 |            0.5      |  0.5      |   0.191879 |    0.0170043 |
     | DummyClassifier                |   0.512281 |            0.489598 |  0.489598 |   0.518924 |    0.0119965 |
     
-==========
+================================================
 Regression
-==========
+================================================
 
-Example ::
+Example 
+::
 
     from prettymetrics.reg import Regressor
     from sklearn import datasets
@@ -163,14 +165,16 @@ Example ::
 
 
 
-How to run all examples::
+How to run all examples
+::
 
     git clone git@github.com:tactlabs/prettymetrics.git
     cd prettymetrics
     py examples/example_runner.py
 
-Credits::
+Credits
+::
 
-The base code is derived from LazyPredict (https://github.com/shankarpandala/lazypredict). 
-As we see a lot of improvement in LazyPredict and the existing library is a bit outdated, we came up with this library. 
-It can be LazyPredict++ as you will see this lib is updated and having more metrics.
+    The base code is derived from LazyPredict (https://github.com/shankarpandala/lazypredict). 
+    As we see a lot of improvement in LazyPredict and the existing library is a bit outdated, we came up with this library. 
+    It can be LazyPredict++ as you will see this lib is updated and having more metrics.
