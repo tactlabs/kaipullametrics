@@ -311,7 +311,7 @@ class Classifier:
                 if self.verbose > 0:
                     if self.custom_metric is not None:
                         
-                           score_verbose= {
+                            score_verbose= {
                                 "Model": name,
                                 "Accuracy": accuracy,
                                 "Balanced Accuracy": b_accuracy,
@@ -320,11 +320,11 @@ class Classifier:
                                 self.custom_metric.__name__: custom_metric,
                                 "Time taken": time.time() - start,
                             }
-                        score_df= pd.DataFrame.from_dict(score_verbose)
-                        print(score_df)
+                            score_df= pd.DataFrame.from_dict(score_verbose)
+                            print(score_df)
                     else:
                         
-                          score_verbose= {
+                            score_verbose= {
                                 "Model": name,
                                 "Accuracy": accuracy,
                                 "Balanced Accuracy": b_accuracy,
@@ -332,8 +332,8 @@ class Classifier:
                                 "F1 Score": f1,
                                 "Time taken": time.time() - start,
                             }
-                        score_df= pd.DataFrame.from_dict(score_verbose)
-                        print(score_df)
+                            score_df= pd.DataFrame.from_dict(score_verbose)
+                            print(score_df)
                 if self.predictions:
                     predictions[name] = y_pred
             except Exception as exception:
@@ -404,7 +404,7 @@ class Classifier:
         
         final=None
         model_name=models.iloc[0].name
-        for name, model in tqdm(self.regressors):
+        for name, model in tqdm(self.classifiers):
             if name==model_name:
                final=model
 
