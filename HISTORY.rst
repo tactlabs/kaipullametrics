@@ -3,6 +3,14 @@ History
 =======
 
 
+0.0.3 (2021-10-12)
+------------------
+* Examples runner added
+* All examples enclosed with methods
+* One place examples runner initiated
+* General code cleanup
+
+
 0.0.2 (2021-10-11)
 ------------------
 
