@@ -3,13 +3,24 @@ from prettymetrics.reg import Regressor
 from sklearn.datasets import load_diabetes
 from sklearn.model_selection import train_test_split
 
-data                                = load_diabetes()
-X                                   = data.data
-y                                   = data.target
+def run_():
 
-X_train, X_test, y_train, y_test    = train_test_split(X, y, test_size = .2, random_state = 123)
+    data                                = load_diabetes()
+    X                                   = data.data
+    y                                   = data.target
 
-reg                                 = Regressor(verbose = 0, ignore_warnings = True, custom_metric = None)
-models,predictions                  = reg.fit(X_train, X_test, y_train, y_test)
+    X_train, X_test, y_train, y_test    = train_test_split(X, y, test_size = .2, random_state = 123)
 
-print(models)
+    reg                                 = Regressor(verbose = 0, ignore_warnings = True, custom_metric = None)
+    models,predictions                  = reg.fit(X_train, X_test, y_train, y_test)
+
+    print(models)
+
+
+def startpy():
+    
+    run_()
+
+
+if __name__ == '__main__':
+    startpy()

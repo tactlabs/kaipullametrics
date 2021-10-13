@@ -2,13 +2,24 @@ from prettymetrics.clf import Classifier
 from sklearn.datasets import load_wine
 from sklearn.model_selection import train_test_split
 
-data    = load_wine()
-X       = data.data
-y       = data.target
+def run_():
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = .3,random_state = 123)
+    data    = load_wine()
+    X       = data.data
+    y       = data.target
 
-clf                 = Classifier(verbose = 0, ignore_warnings = True, custom_metric = None)
-models,predictions  = clf.fit(X_train, X_test, y_train, y_test)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = .3,random_state = 123)
 
-print(models)
+    clf                 = Classifier(verbose = 0, ignore_warnings = True, custom_metric = None)
+    models,predictions  = clf.fit(X_train, X_test, y_train, y_test)
+
+    print(models)
+
+
+def startpy():
+    
+    run_()
+
+
+if __name__ == '__main__':
+    startpy()
