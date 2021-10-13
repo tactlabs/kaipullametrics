@@ -315,7 +315,8 @@ class Regressor:
                     if self.custom_metric:
                         scores_verbose[self.custom_metric.__name__] = custom_metric
 
-                    print(scores_verbose)
+                    scores_df= pd.DataFrame.from_dict(scores_verbose)
+                    print(scores_df)
                 if self.predictions:
                     predictions[name] = y_pred
             except Exception as exception:
@@ -369,3 +370,20 @@ class Regressor:
             self.fit(X_train,X_test,y_train,y_test)
 
         return self.models
+    
+    
+    def best_model(self,models):
+        
+        final=None
+        model_name=models.iloc[0].name
+        for name, model in tqdm(self.regressors):
+            if name==model_name:
+               final=model
+
+        pipe = Pipeline(
+                        steps=[
+                            ("regressor", final()),
+                              ]
+                       )
+
+        return pipe
