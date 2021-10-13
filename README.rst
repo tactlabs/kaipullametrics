@@ -168,3 +168,8 @@ Example ::
 
 
 
+How to run all examples::
+
+    git clone git@github.com:tactlabs/prettymetrics.git
+    cd prettymetrics
+    py examples/example_runner.py
