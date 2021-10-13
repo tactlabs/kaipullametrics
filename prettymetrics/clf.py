@@ -310,8 +310,8 @@ class Classifier:
                     CUSTOM_METRIC.append(custom_metric)
                 if self.verbose > 0:
                     if self.custom_metric is not None:
-                        print(
-                            {
+                        
+                            score_verbose= {
                                 "Model": name,
                                 "Accuracy": accuracy,
                                 "Balanced Accuracy": b_accuracy,
@@ -320,10 +320,11 @@ class Classifier:
                                 self.custom_metric.__name__: custom_metric,
                                 "Time taken": time.time() - start,
                             }
-                        )
+                            score_df= pd.DataFrame.from_dict(score_verbose)
+                            print(score_df)
                     else:
-                        print(
-                            {
+                        
+                            score_verbose= {
                                 "Model": name,
                                 "Accuracy": accuracy,
                                 "Balanced Accuracy": b_accuracy,
@@ -331,7 +332,8 @@ class Classifier:
                                 "F1 Score": f1,
                                 "Time taken": time.time() - start,
                             }
-                        )
+                            score_df= pd.DataFrame.from_dict(score_verbose)
+                            print(score_df)
                 if self.predictions:
                     predictions[name] = y_pred
             except Exception as exception:
@@ -397,3 +399,19 @@ class Classifier:
             self.fit(X_train,X_test,y_train,y_test)
 
         return self.models
+
+    def best_model(self,models):
+        
+        final=None
+        model_name=models.iloc[0].name
+        for name, model in tqdm(self.classifiers):
+            if name==model_name:
+               final=model
+
+        pipe = Pipeline(
+                        steps=[
+                            ("Classifier", final()),
+                              ]
+                       )
+
+        return pipe
