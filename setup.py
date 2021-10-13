@@ -32,7 +32,7 @@ setup(
         "Natural Language :: English",
         "Programming Language :: Python :: 3.6",
     ],
-    description="Pretty Metrics bring the ROC, F1 scores and other details for all ML libraries",
+    description="One place metrics for various ML regression and classification algorithms",
     entry_points={"console_scripts": ["prettymetrics=prettymetrics.cli:main",],},
     install_requires=requirements,
     license="MIT",
@@ -45,6 +45,6 @@ setup(
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/tactlabs/prettymetrics",
-    version='0.0.1',
+    version='0.0.3',
     zip_safe=False,
 )
