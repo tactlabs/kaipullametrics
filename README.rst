@@ -3,16 +3,11 @@ Pretty Metrics
 ============
 
 
-
-
-Pretty Metrics bring the ROC, F1 scores and other details for all ML libraries
-
-Credits:
-The base code is derived from LazyPredict (https://github.com/shankarpandala/lazypredict). As we see a lot of improvement in LazyPredict and the existing library is a bit outdated, we came up with this library. It can be LazyPredict++ as you will see this lib is updated and having more metrics.
-
+One place metrics for various ML regression and classification algorithms
 
 * Free software: MIT license
-* Documentation: https://prettymetrics.readthedocs.io.
+* Documentation: TBD
+
 
 ============
 Installation
@@ -173,3 +168,9 @@ How to run all examples::
     git clone git@github.com:tactlabs/prettymetrics.git
     cd prettymetrics
     py examples/example_runner.py
+
+Credits::
+
+The base code is derived from LazyPredict (https://github.com/shankarpandala/lazypredict). 
+As we see a lot of improvement in LazyPredict and the existing library is a bit outdated, we came up with this library. 
+It can be LazyPredict++ as you will see this lib is updated and having more metrics.
