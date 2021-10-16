@@ -200,6 +200,22 @@ class Classifier:
         self.random_state       = random_state
         self.classifiers        = classifiers
 
+    def get_classifiers(self):
+
+        if self.classifiers == "all":
+            self.classifiers = CLASSIFIERS
+            return
+        
+        try:
+            temp_list = []
+            for classifier in self.classifiers:
+                full_name = (classifier.__class__.__name__, classifier)
+                temp_list.append(full_name)
+            self.classifiers = temp_list
+        except Exception as exception:
+            print(exception)
+            print("Invalid Classifier(s)")
+
     def fit(self, X_train, X_test, y_train, y_test):
         """Fit Classification algorithms to X_train and y_train, predict and score on X_test, y_test.
         Parameters
@@ -223,15 +239,15 @@ class Classifier:
         predictions : Pandas DataFrame
             Returns predictions of all the models in a Pandas DataFrame.
         """
-        Accuracy    = []
-        B_Accuracy  = []
-        ROC_AUC     = []
-        F1          = []
-        names       = []
-        TIME        = []
-        predictions = {}
+        accuracy_list           = []
+        balanced_accuracy_list  = []
+        roc_auc_list            = []
+        f1_list                 = []
+        names                   = []
+        time_list               = []
+        predictions             = {}
 
-        if self.custom_metric is not None:
+        if self.custom_metric:
             CUSTOM_METRIC = []
 
         if isinstance(X_train, np.ndarray):
@@ -253,18 +269,7 @@ class Classifier:
             ]
         )
 
-        if self.classifiers == "all":
-            self.classifiers = CLASSIFIERS
-        else:
-            try:
-                temp_list = []
-                for classifier in self.classifiers:
-                    full_name = (classifier.__class__.__name__, classifier)
-                    temp_list.append(full_name)
-                self.classifiers = temp_list
-            except Exception as exception:
-                print(exception)
-                print("Invalid Classifier(s)")
+        self.get_classifiers()
 
         for name, model in tqdm(self.classifiers):
             start = time.time()
@@ -297,80 +302,69 @@ class Classifier:
                         print("ROC AUC couldn't be calculated for " + name)
                         print(exception)
 
+                # indexes.append()
                 names.append(name)
-                Accuracy.append(accuracy)
-                B_Accuracy.append(b_accuracy)
-                ROC_AUC.append(roc_auc)
-                F1.append(f1)
-                TIME.append(time.time() - start)
+                accuracy_list.append(accuracy)
+                balanced_accuracy_list.append(b_accuracy)
+                roc_auc_list.append(roc_auc)
+                f1_list.append(f1)
+                time_list.append(time.time() - start)
 
-                if self.custom_metric is not None:
+                if self.custom_metric:
                     custom_metric = self.custom_metric(y_test, y_pred)
                     CUSTOM_METRIC.append(custom_metric)
 
                 if self.verbose > 0:
-                    if self.custom_metric is not None:
-                        print(
-                            {
-                                "Model"                     : name,
-                                "Accuracy"                  : accuracy,
-                                "Balanced Accuracy"         : b_accuracy,
-                                "ROC AUC"                   : roc_auc,
-                                "F1 Score"                  : f1,
-                                self.custom_metric.__name__ : custom_metric,
-                                "Time taken"                : time.time() - start,
-                            }
-                        )
-                    else:
-                        print(
-                            {
-                                "Model"             : name,
-                                "Accuracy"          : accuracy,
-                                "Balanced Accuracy" : b_accuracy,
-                                "ROC AUC"           : roc_auc,
-                                "F1 Score"          : f1,
-                                "Time taken"        : time.time() - start,
-                            }
-                        )
+                    current_metric = {
+                        "Model"                     : name,
+                        "Accuracy"                  : accuracy,
+                        "Balanced Accuracy"         : b_accuracy,
+                        "ROC AUC"                   : roc_auc,
+                        "F1 Score"                  : f1,
+                        "Time taken"                : time.time() - start,
+                    }
+
+                    if self.custom_metric:
+                        current_metric[self.custom_metric.__name__] = custom_metric
+                    
+                    print(current_metric)
 
                 if self.predictions:
                     predictions[name] = y_pred
-                    
+
             except Exception as exception:
                 if self.ignore_warnings is False:
                     print(name + " model failed to execute")
                     print(exception)
 
-        if self.custom_metric is None:
-            scores = pd.DataFrame(
-                {
-                    "Model"             : names,
-                    "Accuracy"          : Accuracy,
-                    "Balanced Accuracy" : B_Accuracy,
-                    "ROC AUC"           : ROC_AUC,
-                    "F1 Score"          : F1,
-                    "Time Taken"        : TIME,
-                }
-            )
-        else:
-            scores = pd.DataFrame(
-                {
-                    "Model"                     : names,
-                    "Accuracy"                  : Accuracy,
-                    "Balanced Accuracy"         : B_Accuracy,
-                    "ROC AUC"                   : ROC_AUC,
-                    "F1 Score"                  : F1,
-                    self.custom_metric.__name__ : CUSTOM_METRIC,
-                    "Time Taken"                : TIME,
-                }
-            )
+        # indexes = scores.index[lambda x: x in scores.indexes()]
 
+        scores = pd.DataFrame(
+            {
+                "Model"             : names,
+                "Accuracy"          : accuracy_list,
+                "Balanced Accuracy" : balanced_accuracy_list,
+                "ROC AUC"           : roc_auc_list,
+                "F1 Score"          : f1_list,
+                "Time Taken"        : time_list,
+            }
+        )
+
+        if self.custom_metric:
+            scores[self.custom_metric.__name__] = CUSTOM_METRIC
+
+        # Sort the final metris by Balance Accuracy
         scores = scores.sort_values(
-            by          = "Balanced Accuracy", 
-            ascending   = False
+            by              = "Balanced Accuracy", 
+            ascending       = False,
+            # ignore_index    = True # This is not helping on the indexing
         ).set_index(
             "Model"
         )
+
+        # TODO: We need to index the score so we can see how many algorithms used
+        indexes = scores.index.tolist()
+        # scores['L_Index'] = indexes
 
         if self.predictions:
             predictions_df = pd.DataFrame.from_dict(predictions)
