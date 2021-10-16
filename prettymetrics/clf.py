@@ -43,14 +43,8 @@ removed_classifiers = [
     # ("CheckingClassifier", sklearn.utils._mocking.CheckingClassifier),
     ("ClassifierChain", ClassifierChain),
     ("ComplementNB", ComplementNB),
-    (
-        "GradientBoostingClassifier",
-        GradientBoostingClassifier,
-    ),
-    (
-        "GaussianProcessClassifier",
-        GaussianProcessClassifier,
-    ),
+    ("GradientBoostingClassifier",GradientBoostingClassifier,),
+    ("GaussianProcessClassifier",GaussianProcessClassifier,),
     # (
     #     "HistGradientBoostingClassifier",
     #     HistGradientBoostingClassifier,
@@ -117,9 +111,10 @@ def get_card_split(df, cols, n=11):
     card_high : list-like
         Columns with cardinality >= n
     """
-    cond = df[cols].nunique() > n
-    card_high = cols[cond]
-    card_low = cols[~cond]
+    cond        = df[cols].nunique() > n
+    card_high   = cols[cond]
+    card_low    = cols[~cond]
+
     return card_low, card_high
 
 
@@ -190,20 +185,20 @@ class Classifier:
 
     def __init__(
         self,
-        verbose=0,
-        ignore_warnings=True,
-        custom_metric=None,
-        predictions=False,
-        random_state=42,
-        classifiers = "all"
+        verbose         = 0,
+        ignore_warnings = True,
+        custom_metric   = None,
+        predictions     = False,
+        random_state    = 42,
+        classifiers     = "all"
     ):
-        self.verbose = verbose
-        self.ignore_warnings = ignore_warnings
-        self.custom_metric = custom_metric
-        self.predictions = predictions
-        self.models = {}
-        self.random_state = random_state
-        self.classifiers = classifiers
+        self.verbose            = verbose
+        self.ignore_warnings    = ignore_warnings
+        self.custom_metric      = custom_metric
+        self.predictions        = predictions
+        self.models             = {}
+        self.random_state       = random_state
+        self.classifiers        = classifiers
 
     def fit(self, X_train, X_test, y_train, y_test):
         """Fit Classification algorithms to X_train and y_train, predict and score on X_test, y_test.
@@ -228,12 +223,12 @@ class Classifier:
         predictions : Pandas DataFrame
             Returns predictions of all the models in a Pandas DataFrame.
         """
-        Accuracy = []
-        B_Accuracy = []
-        ROC_AUC = []
-        F1 = []
-        names = []
-        TIME = []
+        Accuracy    = []
+        B_Accuracy  = []
+        ROC_AUC     = []
+        F1          = []
+        names       = []
+        TIME        = []
         predictions = {}
 
         if self.custom_metric is not None:
@@ -241,17 +236,17 @@ class Classifier:
 
         if isinstance(X_train, np.ndarray):
             X_train = pd.DataFrame(X_train)
-            X_test = pd.DataFrame(X_test)
+            X_test  = pd.DataFrame(X_test)
 
-        numeric_features = X_train.select_dtypes(include=[np.number]).columns
-        categorical_features = X_train.select_dtypes(include=["object"]).columns
+        numeric_features        = X_train.select_dtypes(include=[np.number]).columns
+        categorical_features    = X_train.select_dtypes(include=["object"]).columns
 
         categorical_low, categorical_high = get_card_split(
             X_train, categorical_features
         )
 
         preprocessor = ColumnTransformer(
-            transformers=[
+            transformers = [
                 ("numeric", numeric_transformer, numeric_features),
                 ("categorical_low", categorical_transformer_low, categorical_low),
                 ("categorical_high", categorical_transformer_high, categorical_high),
@@ -276,22 +271,24 @@ class Classifier:
             try:
                 if "random_state" in model().get_params().keys():
                     pipe = Pipeline(
-                        steps=[
+                        steps = [
                             ("preprocessor", preprocessor),
                             ("classifier", model(random_state=self.random_state)),
                         ]
                     )
                 else:
                     pipe = Pipeline(
-                        steps=[("preprocessor", preprocessor), ("classifier", model())]
+                        steps = [("preprocessor", preprocessor), ("classifier", model())]
                     )
 
                 pipe.fit(X_train, y_train)
-                self.models[name] = pipe
-                y_pred = pipe.predict(X_test)
-                accuracy = accuracy_score(y_test, y_pred, normalize=True)
-                b_accuracy = balanced_accuracy_score(y_test, y_pred)
-                f1 = f1_score(y_test, y_pred, average="weighted")
+
+                self.models[name]   = pipe
+                y_pred              = pipe.predict(X_test)
+                accuracy            = accuracy_score(y_test, y_pred, normalize=True)
+                b_accuracy          = balanced_accuracy_score(y_test, y_pred)
+                f1                  = f1_score(y_test, y_pred, average="weighted")
+                
                 try:
                     roc_auc = roc_auc_score(y_test, y_pred)
                 except Exception as exception:
@@ -299,74 +296,84 @@ class Classifier:
                     if self.ignore_warnings is False:
                         print("ROC AUC couldn't be calculated for " + name)
                         print(exception)
+
                 names.append(name)
                 Accuracy.append(accuracy)
                 B_Accuracy.append(b_accuracy)
                 ROC_AUC.append(roc_auc)
                 F1.append(f1)
                 TIME.append(time.time() - start)
+
                 if self.custom_metric is not None:
                     custom_metric = self.custom_metric(y_test, y_pred)
                     CUSTOM_METRIC.append(custom_metric)
+
                 if self.verbose > 0:
                     if self.custom_metric is not None:
                         print(
                             {
-                                "Model": name,
-                                "Accuracy": accuracy,
-                                "Balanced Accuracy": b_accuracy,
-                                "ROC AUC": roc_auc,
-                                "F1 Score": f1,
-                                self.custom_metric.__name__: custom_metric,
-                                "Time taken": time.time() - start,
+                                "Model"                     : name,
+                                "Accuracy"                  : accuracy,
+                                "Balanced Accuracy"         : b_accuracy,
+                                "ROC AUC"                   : roc_auc,
+                                "F1 Score"                  : f1,
+                                self.custom_metric.__name__ : custom_metric,
+                                "Time taken"                : time.time() - start,
                             }
                         )
                     else:
                         print(
                             {
-                                "Model": name,
-                                "Accuracy": accuracy,
-                                "Balanced Accuracy": b_accuracy,
-                                "ROC AUC": roc_auc,
-                                "F1 Score": f1,
-                                "Time taken": time.time() - start,
+                                "Model"             : name,
+                                "Accuracy"          : accuracy,
+                                "Balanced Accuracy" : b_accuracy,
+                                "ROC AUC"           : roc_auc,
+                                "F1 Score"          : f1,
+                                "Time taken"        : time.time() - start,
                             }
                         )
+
                 if self.predictions:
                     predictions[name] = y_pred
             except Exception as exception:
                 if self.ignore_warnings is False:
                     print(name + " model failed to execute")
                     print(exception)
+
         if self.custom_metric is None:
             scores = pd.DataFrame(
                 {
-                    "Model": names,
-                    "Accuracy": Accuracy,
-                    "Balanced Accuracy": B_Accuracy,
-                    "ROC AUC": ROC_AUC,
-                    "F1 Score": F1,
-                    "Time Taken": TIME,
+                    "Model"             : names,
+                    "Accuracy"          : Accuracy,
+                    "Balanced Accuracy" : B_Accuracy,
+                    "ROC AUC"           : ROC_AUC,
+                    "F1 Score"          : F1,
+                    "Time Taken"        : TIME,
                 }
             )
         else:
             scores = pd.DataFrame(
                 {
-                    "Model": names,
-                    "Accuracy": Accuracy,
-                    "Balanced Accuracy": B_Accuracy,
-                    "ROC AUC": ROC_AUC,
-                    "F1 Score": F1,
-                    self.custom_metric.__name__: CUSTOM_METRIC,
-                    "Time Taken": TIME,
+                    "Model"                     : names,
+                    "Accuracy"                  : Accuracy,
+                    "Balanced Accuracy"         : B_Accuracy,
+                    "ROC AUC"                   : ROC_AUC,
+                    "F1 Score"                  : F1,
+                    self.custom_metric.__name__ : CUSTOM_METRIC,
+                    "Time Taken"                : TIME,
                 }
             )
-        scores = scores.sort_values(by="Balanced Accuracy", ascending=False).set_index(
+
+        scores = scores.sort_values(
+            by          = "Balanced Accuracy", 
+            ascending   = False
+        ).set_index(
             "Model"
         )
 
         if self.predictions:
             predictions_df = pd.DataFrame.from_dict(predictions)
+
         return scores, predictions_df if self.predictions is True else scores
 
     def provide_models(self, X_train, X_test, y_train, y_test):
