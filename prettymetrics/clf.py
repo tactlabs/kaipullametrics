@@ -43,14 +43,8 @@ removed_classifiers = [
     # ("CheckingClassifier", sklearn.utils._mocking.CheckingClassifier),
     ("ClassifierChain", ClassifierChain),
     ("ComplementNB", ComplementNB),
-    (
-        "GradientBoostingClassifier",
-        GradientBoostingClassifier,
-    ),
-    (
-        "GaussianProcessClassifier",
-        GaussianProcessClassifier,
-    ),
+    ("GradientBoostingClassifier",GradientBoostingClassifier,),
+    ("GaussianProcessClassifier",GaussianProcessClassifier,),
     # (
     #     "HistGradientBoostingClassifier",
     #     HistGradientBoostingClassifier,
@@ -117,9 +111,10 @@ def get_card_split(df, cols, n=11):
     card_high : list-like
         Columns with cardinality >= n
     """
-    cond = df[cols].nunique() > n
-    card_high = cols[cond]
-    card_low = cols[~cond]
+    cond        = df[cols].nunique() > n
+    card_high   = cols[cond]
+    card_low    = cols[~cond]
+
     return card_low, card_high
 
 
@@ -190,20 +185,36 @@ class Classifier:
 
     def __init__(
         self,
-        verbose=0,
-        ignore_warnings=True,
-        custom_metric=None,
-        predictions=False,
-        random_state=42,
-        classifiers = "all"
+        verbose         = 0,
+        ignore_warnings = True,
+        custom_metric   = None,
+        predictions     = False,
+        random_state    = 42,
+        classifiers     = "all"
     ):
-        self.verbose = verbose
-        self.ignore_warnings = ignore_warnings
-        self.custom_metric = custom_metric
-        self.predictions = predictions
-        self.models = {}
-        self.random_state = random_state
-        self.classifiers = classifiers
+        self.verbose            = verbose
+        self.ignore_warnings    = ignore_warnings
+        self.custom_metric      = custom_metric
+        self.predictions        = predictions
+        self.models             = {}
+        self.random_state       = random_state
+        self.classifiers        = classifiers
+
+    def get_classifiers(self):
+
+        if self.classifiers == "all":
+            self.classifiers = CLASSIFIERS
+            return
+        
+        try:
+            temp_list = []
+            for classifier in self.classifiers:
+                full_name = (classifier.__class__.__name__, classifier)
+                temp_list.append(full_name)
+            self.classifiers = temp_list
+        except Exception as exception:
+            print(exception)
+            print("Invalid Classifier(s)")
 
     def fit(self, X_train, X_test, y_train, y_test):
         """Fit Classification algorithms to X_train and y_train, predict and score on X_test, y_test.
@@ -228,70 +239,61 @@ class Classifier:
         predictions : Pandas DataFrame
             Returns predictions of all the models in a Pandas DataFrame.
         """
-        Accuracy = []
-        B_Accuracy = []
-        ROC_AUC = []
-        F1 = []
-        names = []
-        TIME = []
-        predictions = {}
+        accuracy_list           = []
+        balanced_accuracy_list  = []
+        roc_auc_list            = []
+        f1_list                 = []
+        names                   = []
+        time_list               = []
+        predictions             = {}
 
-        if self.custom_metric is not None:
+        if self.custom_metric:
             CUSTOM_METRIC = []
 
         if isinstance(X_train, np.ndarray):
             X_train = pd.DataFrame(X_train)
-            X_test = pd.DataFrame(X_test)
+            X_test  = pd.DataFrame(X_test)
 
-        numeric_features = X_train.select_dtypes(include=[np.number]).columns
-        categorical_features = X_train.select_dtypes(include=["object"]).columns
+        numeric_features        = X_train.select_dtypes(include=[np.number]).columns
+        categorical_features    = X_train.select_dtypes(include=["object"]).columns
 
         categorical_low, categorical_high = get_card_split(
             X_train, categorical_features
         )
 
         preprocessor = ColumnTransformer(
-            transformers=[
+            transformers = [
                 ("numeric", numeric_transformer, numeric_features),
                 ("categorical_low", categorical_transformer_low, categorical_low),
                 ("categorical_high", categorical_transformer_high, categorical_high),
             ]
         )
 
-        if self.classifiers == "all":
-            self.classifiers = CLASSIFIERS
-        else:
-            try:
-                temp_list = []
-                for classifier in self.classifiers:
-                    full_name = (classifier.__class__.__name__, classifier)
-                    temp_list.append(full_name)
-                self.classifiers = temp_list
-            except Exception as exception:
-                print(exception)
-                print("Invalid Classifier(s)")
+        self.get_classifiers()
 
         for name, model in tqdm(self.classifiers):
             start = time.time()
             try:
                 if "random_state" in model().get_params().keys():
                     pipe = Pipeline(
-                        steps=[
+                        steps = [
                             ("preprocessor", preprocessor),
                             ("classifier", model(random_state=self.random_state)),
                         ]
                     )
                 else:
                     pipe = Pipeline(
-                        steps=[("preprocessor", preprocessor), ("classifier", model())]
+                        steps = [("preprocessor", preprocessor), ("classifier", model())]
                     )
 
                 pipe.fit(X_train, y_train)
-                self.models[name] = pipe
-                y_pred = pipe.predict(X_test)
-                accuracy = accuracy_score(y_test, y_pred, normalize=True)
-                b_accuracy = balanced_accuracy_score(y_test, y_pred)
-                f1 = f1_score(y_test, y_pred, average="weighted")
+
+                self.models[name]   = pipe
+                y_pred              = pipe.predict(X_test)
+                accuracy            = accuracy_score(y_test, y_pred, normalize=True)
+                b_accuracy          = balanced_accuracy_score(y_test, y_pred)
+                f1                  = f1_score(y_test, y_pred, average="weighted")
+                
                 try:
                     roc_auc = roc_auc_score(y_test, y_pred)
                 except Exception as exception:
@@ -299,74 +301,74 @@ class Classifier:
                     if self.ignore_warnings is False:
                         print("ROC AUC couldn't be calculated for " + name)
                         print(exception)
+
+                # indexes.append()
                 names.append(name)
-                Accuracy.append(accuracy)
-                B_Accuracy.append(b_accuracy)
-                ROC_AUC.append(roc_auc)
-                F1.append(f1)
-                TIME.append(time.time() - start)
-                if self.custom_metric is not None:
+                accuracy_list.append(accuracy)
+                balanced_accuracy_list.append(b_accuracy)
+                roc_auc_list.append(roc_auc)
+                f1_list.append(f1)
+                time_list.append(time.time() - start)
+
+                if self.custom_metric:
                     custom_metric = self.custom_metric(y_test, y_pred)
                     CUSTOM_METRIC.append(custom_metric)
+
                 if self.verbose > 0:
-                    if self.custom_metric is not None:
-                        print(
-                            {
-                                "Model": name,
-                                "Accuracy": accuracy,
-                                "Balanced Accuracy": b_accuracy,
-                                "ROC AUC": roc_auc,
-                                "F1 Score": f1,
-                                self.custom_metric.__name__: custom_metric,
-                                "Time taken": time.time() - start,
-                            }
-                        )
-                    else:
-                        print(
-                            {
-                                "Model": name,
-                                "Accuracy": accuracy,
-                                "Balanced Accuracy": b_accuracy,
-                                "ROC AUC": roc_auc,
-                                "F1 Score": f1,
-                                "Time taken": time.time() - start,
-                            }
-                        )
+                    current_metric = {
+                        "Model"                     : name,
+                        "Accuracy"                  : accuracy,
+                        "Balanced Accuracy"         : b_accuracy,
+                        "ROC AUC"                   : roc_auc,
+                        "F1 Score"                  : f1,
+                        "Time taken"                : time.time() - start,
+                    }
+
+                    if self.custom_metric:
+                        current_metric[self.custom_metric.__name__] = custom_metric
+                    
+                    print(current_metric)
+
                 if self.predictions:
                     predictions[name] = y_pred
+
             except Exception as exception:
                 if self.ignore_warnings is False:
                     print(name + " model failed to execute")
                     print(exception)
-        if self.custom_metric is None:
-            scores = pd.DataFrame(
-                {
-                    "Model": names,
-                    "Accuracy": Accuracy,
-                    "Balanced Accuracy": B_Accuracy,
-                    "ROC AUC": ROC_AUC,
-                    "F1 Score": F1,
-                    "Time Taken": TIME,
-                }
-            )
-        else:
-            scores = pd.DataFrame(
-                {
-                    "Model": names,
-                    "Accuracy": Accuracy,
-                    "Balanced Accuracy": B_Accuracy,
-                    "ROC AUC": ROC_AUC,
-                    "F1 Score": F1,
-                    self.custom_metric.__name__: CUSTOM_METRIC,
-                    "Time Taken": TIME,
-                }
-            )
-        scores = scores.sort_values(by="Balanced Accuracy", ascending=False).set_index(
+
+        # indexes = scores.index[lambda x: x in scores.indexes()]
+
+        scores = pd.DataFrame(
+            {
+                "Model"             : names,
+                "Accuracy"          : accuracy_list,
+                "Balanced Accuracy" : balanced_accuracy_list,
+                "ROC AUC"           : roc_auc_list,
+                "F1 Score"          : f1_list,
+                "Time Taken"        : time_list,
+            }
+        )
+
+        if self.custom_metric:
+            scores[self.custom_metric.__name__] = CUSTOM_METRIC
+
+        # Sort the final metris by Balance Accuracy
+        scores = scores.sort_values(
+            by              = "Balanced Accuracy", 
+            ascending       = False,
+            # ignore_index    = True # This is not helping on the indexing
+        ).set_index(
             "Model"
         )
 
+        # TODO: We need to index the score so we can see how many algorithms used
+        indexes = scores.index.tolist()
+        # scores['L_Index'] = indexes
+
         if self.predictions:
             predictions_df = pd.DataFrame.from_dict(predictions)
+
         return scores, predictions_df if self.predictions is True else scores
 
     def provide_models(self, X_train, X_test, y_train, y_test):
@@ -394,6 +396,6 @@ class Classifier:
             with key as name of models.
         """
         if len(self.models.keys()) == 0:
-            self.fit(X_train,X_test,y_train,y_test)
+            self.fit(X_train, X_test, y_train,y_test)
 
         return self.models

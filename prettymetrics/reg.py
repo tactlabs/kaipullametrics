@@ -55,19 +55,19 @@ REGRESSORS.append(("XGBRegressor", xgboost.XGBRegressor))
 REGRESSORS.append(("LGBMRegressor", lightgbm.LGBMRegressor))
 
 numeric_transformer = Pipeline(
-    steps=[("imputer", SimpleImputer(strategy="mean")), ("scaler", StandardScaler())]
+    steps = [("imputer", SimpleImputer(strategy = "mean")), ("scaler", StandardScaler())]
 )
 
 categorical_transformer_low = Pipeline(
-    steps=[
-        ("imputer", SimpleImputer(strategy="constant", fill_value="missing")),
-        ("encoding", OneHotEncoder(handle_unknown="ignore", sparse=False)),
+    steps = [
+        ("imputer", SimpleImputer(strategy = "constant", fill_value = "missing")),
+        ("encoding", OneHotEncoder(handle_unknown = "ignore", sparse = False)),
     ]
 )
 
 categorical_transformer_high = Pipeline(
     steps=[
-        ("imputer", SimpleImputer(strategy="constant", fill_value="missing")),
+        ("imputer", SimpleImputer(strategy = "constant", fill_value = "missing")),
         # 'OrdianlEncoder' Raise a ValueError when encounters an unknown value. Check https://github.com/scikit-learn/scikit-learn/pull/13423
         ("encoding", OrdinalEncoder()),
     ]
@@ -95,11 +95,11 @@ def get_card_split(df, cols, n=11):
     card_high : list-like
         Columns with cardinality >= n
     """
-    cond = df[cols].nunique() > n
-    card_high = cols[cond]
-    card_low = cols[~cond]
-    return card_low, card_high
+    cond        = df[cols].nunique() > n
+    card_high   = cols[cond]
+    card_low    = cols[~cond]
 
+    return card_low, card_high
 
 def adjusted_rsquared(r2, n, p):
     return 1 - (1-r2) * ((n-1) / (n-p-1))
@@ -189,20 +189,36 @@ class Regressor:
 
     def __init__(
         self,
-        verbose=0,
-        ignore_warnings=True,
-        custom_metric=None,
-        predictions=False,
-        random_state=42,
-        regressors="all",
+        verbose         = 0,
+        ignore_warnings = True,
+        custom_metric   = None,
+        predictions     = False,
+        random_state    = 42,
+        regressors      = "all",
     ):
-        self.verbose = verbose
-        self.ignore_warnings = ignore_warnings
-        self.custom_metric = custom_metric
-        self.predictions = predictions
-        self.models = {}
-        self.random_state = random_state
-        self.regressors = regressors 
+        self.verbose            = verbose
+        self.ignore_warnings    = ignore_warnings
+        self.custom_metric      = custom_metric
+        self.predictions        = predictions
+        self.models             = {}
+        self.random_state       = random_state
+        self.regressors         = regressors 
+
+    def get_regressors(self):
+
+        if self.regressors == "all": 
+            self.regressors = REGRESSORS
+            return
+
+        try:
+            temp_list = []
+            for regressor in self.regressors:
+                full_name = (regressor.__class__.__name__, regressor)
+                temp_list.append(full_name)
+            self.regressors = temp_list
+        except Exception as exception:
+            print(exception)
+            print("Invalid Regressor(s)")
 
     def fit(self, X_train, X_test, y_train, y_test):
         """Fit Regression algorithms to X_train and y_train, predict and score on X_test, y_test.
@@ -227,23 +243,23 @@ class Regressor:
         predictions : Pandas DataFrame
             Returns predictions of all the models in a Pandas DataFrame.
         """
-        R2 = []
-        ADJR2 = []
-        RMSE = []
-        # WIN = []
-        names = []
-        TIME = []
+        r2_list     = []
+        adjr2_list  = []
+        rmse_list   = []
+        # WIN       = []
+        names       = []
+        time_list   = []
         predictions = {}
 
         if self.custom_metric:
-            CUSTOM_METRIC = []
+            custom_metric_list = []
 
         if isinstance(X_train, np.ndarray):
             X_train = pd.DataFrame(X_train)
-            X_test = pd.DataFrame(X_test)
+            X_test  = pd.DataFrame(X_test)
 
-        numeric_features = X_train.select_dtypes(include=[np.number]).columns
-        categorical_features = X_train.select_dtypes(include=["object"]).columns
+        numeric_features        = X_train.select_dtypes(include = [np.number]).columns
+        categorical_features    = X_train.select_dtypes(include = ["object"]).columns
 
         categorical_low, categorical_high = get_card_split(
             X_train, categorical_features
@@ -257,18 +273,7 @@ class Regressor:
             ]
         )
 
-        if self.regressors == "all": 
-            self.regressors = REGRESSORS
-        else:
-            try:
-                temp_list = []
-                for regressor in self.regressors:
-                    full_name = (regressor.__class__.__name__, regressor)
-                    temp_list.append(full_name)
-                self.regressors = temp_list
-            except Exception as exception:
-                print(exception)
-                print("Invalid Regressor(s)")
+        self.get_regressors()
 
         for name, model in tqdm(self.regressors):
             start = time.time()
@@ -282,63 +287,70 @@ class Regressor:
                     )
                 else:
                     pipe = Pipeline(
-                        steps=[("preprocessor", preprocessor), ("regressor", model())]
+                        steps = [("preprocessor", preprocessor), ("regressor", model())]
                     )
 
                 pipe.fit(X_train, y_train)
-                self.models[name] = pipe
-                y_pred = pipe.predict(X_test)
 
-                r_squared = r2_score(y_test, y_pred)
-                adj_rsquared = adjusted_rsquared(r_squared, X_test.shape[0], X_test.shape[1])
-                rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+                self.models[name]   = pipe
+                y_pred              = pipe.predict(X_test)
+
+                r_squared           = r2_score(y_test, y_pred)
+                adj_rsquared        = adjusted_rsquared(r_squared, X_test.shape[0], X_test.shape[1])
+                rmse                = np.sqrt(mean_squared_error(y_test, y_pred))
 
                 names.append(name)
-                R2.append(r_squared)
-                ADJR2.append(adj_rsquared)
-                RMSE.append(rmse)
-                TIME.append(time.time() - start)
+                r2_list.append(r_squared)
+                adjr2_list.append(adj_rsquared)
+                rmse_list.append(rmse)
+                time_list.append(time.time() - start)
 
                 if self.custom_metric:
                     custom_metric = self.custom_metric(y_test, y_pred)
-                    CUSTOM_METRIC.append(custom_metric)
+                    custom_metric_list.append(custom_metric)
 
                 if self.verbose > 0:
                     scores_verbose = {
-                        "Model": name,
-                        "R-Squared": r_squared,
+                        "Model"             : name,
+                        "R-Squared"         : r_squared,
                         "Adjusted R-Squared": adj_rsquared,
-                        "RMSE": rmse,
-                        "Time taken": time.time() - start,
+                        "RMSE"              : rmse,
+                        "Time taken"        : time.time() - start,
                     }
 
                     if self.custom_metric:
                         scores_verbose[self.custom_metric.__name__] = custom_metric
 
                     print(scores_verbose)
+
                 if self.predictions:
                     predictions[name] = y_pred
+
             except Exception as exception:
                 if self.ignore_warnings is False:
                     print(name + " model failed to execute")
                     print(exception)
 
         scores = {
-            "Model": names,
-            "Adjusted R-Squared": ADJR2,
-            "R-Squared": R2,
-            "RMSE": RMSE,
-            "Time Taken": TIME
+            "Model"             : names,
+            "Adjusted R-Squared": adjr2_list,
+            "R-Squared"         : r2_list,
+            "RMSE"              : rmse_list,
+            "Time Taken"        : time_list
         }
 
         if self.custom_metric:
-            scores[self.custom_metric.__name__] = CUSTOM_METRIC
+            scores[self.custom_metric.__name__] = custom_metric_list
 
         scores = pd.DataFrame(scores)
-        scores = scores.sort_values(by="Adjusted R-Squared", ascending=False).set_index("Model")
+        scores = scores.sort_values(
+            by = "Adjusted R-Squared", 
+            ascending = False
+        ).set_index("Model")
 
         if self.predictions:
             predictions_df = pd.DataFrame.from_dict(predictions)
+            
         return scores, predictions_df if self.predictions is True else scores
 
     def provide_models(self, X_train, X_test, y_train, y_test):
