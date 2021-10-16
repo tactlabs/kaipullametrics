@@ -335,6 +335,7 @@ class Classifier:
 
                 if self.predictions:
                     predictions[name] = y_pred
+                    
             except Exception as exception:
                 if self.ignore_warnings is False:
                     print(name + " model failed to execute")
@@ -401,6 +402,6 @@ class Classifier:
             with key as name of models.
         """
         if len(self.models.keys()) == 0:
-            self.fit(X_train,X_test,y_train,y_test)
+            self.fit(X_train, X_test, y_train,y_test)
 
         return self.models
